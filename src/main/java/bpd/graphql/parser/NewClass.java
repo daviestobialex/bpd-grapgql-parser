@@ -15,13 +15,7 @@
  */
 package bpd.graphql.parser;
 
-import static bpd.graphql.parser.GraphQLScope.DANGLING_NAME;
-import static bpd.graphql.parser.GraphQLScope.EMPTY_ARRAY;
-import static bpd.graphql.parser.GraphQLScope.EMPTY_DOCUMENT;
-import static bpd.graphql.parser.GraphQLScope.EMPTY_OBJECT;
-import static bpd.graphql.parser.GraphQLScope.NONEMPTY_ARRAY;
-import static bpd.graphql.parser.GraphQLScope.NONEMPTY_DOCUMENT;
-import static bpd.graphql.parser.GraphQLScope.NONEMPTY_OBJECT;
+import bpd.graphql.config.GraphQLScope;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -31,7 +25,7 @@ import java.io.Writer;
  *
  * @author ailori
  */
-public class NewClass implements Closeable, Flushable {
+public class NewClass extends GraphQLScope implements Closeable, Flushable {
 
     /*
    * From RFC 7159, "All Unicode characters may be placed within the

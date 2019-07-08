@@ -15,7 +15,7 @@
  */
 package bpd.graphql;
 
-import bpd.graphql.parser.GraphQLParser;
+import bpd.graphql.parser.GraphQLParserImpl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -40,11 +40,11 @@ public class TestParser {
 
         Map<String, Object> expectedResponses = new HashMap<>();
         expectedResponses.put("responseCode", null);
-        expectedResponses.put("groups", null);
+        expectedResponses.put("groups", new String[] {"groupName", "from", "to"});
 
         GraphQLAnnotationRequest req = new GraphQLAnnotationRequest("getAllPageable", parameters, expectedResponses);
 
-        GraphQLParser p = new GraphQLParser();
+        GraphQLParserImpl p = new GraphQLParserImpl();
 
         try {
             p.toString(req);

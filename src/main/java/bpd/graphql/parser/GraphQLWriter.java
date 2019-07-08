@@ -15,24 +15,20 @@
  */
 package bpd.graphql.parser;
 
-import static bpd.graphql.parser.GraphQLScope.EMPTY_OBJECT;
-import static bpd.graphql.parser.GraphQLScope.EMPTY_DOCUMENT;
-import static bpd.graphql.parser.GraphQLScope.NONEMPTY_DOCUMENT;
-import static bpd.graphql.parser.GraphQLScope.NONEMPTY_OBJECT;
-import static bpd.graphql.parser.GraphQLScope.NONPARAMETERS;
-import static bpd.graphql.parser.GraphQLScope.PARAMETERS;
+import bpd.graphql.config.GraphQLScope;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
  *
  * @author davies tobi alex
  */
-public class GraphQLWriter implements Closeable, Flushable {
+public class GraphQLWriter extends GraphQLScope implements Closeable, Flushable {
 
     /*
    * From RFC 7159, "All Unicode characters may be placed within the
@@ -215,12 +211,29 @@ public class GraphQLWriter implements Closeable, Flushable {
         }
     }
 
-    private void writeSingleResponse(Map.Entry<String, Object> V, String response) throws IOException {
+    private void writeSingleResponse(Map.Entry<String, Object> V, String seperator) throws IOException {
         if (V.getKey() != null) {
-            this.write(V.getKey().concat(response));
+            this.write(V.getKey().concat(seperator));
+            if (V.getValue() != null && V.getValue() instanceof List<?>) {
+                // write reposne object
+                writeResposeObjects((String[]) ((List<String>) V.getValue()).toArray());
+            } else if (V.getValue() != null && V.getValue() instanceof String[]) {
+                writeResposeObjects((String[]) V.getValue());
+            }
         } else {
             throw new IllegalStateException("Invalid Parse Object");
         }
+    }
+
+    private void writeResposeObjects(String[] object) throws IOException {
+        this.beginObject();
+        int less = object.length - 1;
+        for (int i = 0; i < less; i++) {
+            this.write(((String) object[i]).concat(" "));
+        }
+        this.write(((String) object[less]).concat(""));
+        this.endObject();
+
     }
 
     public void beginObject() throws IOException {
@@ -244,7 +257,7 @@ public class GraphQLWriter implements Closeable, Flushable {
         if (this.indentation) {
             this.write(" }");
         } else {
-            this.write("}");
+            this.write("} ");
         }
     }
 
