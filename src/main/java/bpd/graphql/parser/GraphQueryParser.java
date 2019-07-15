@@ -20,28 +20,30 @@ import bpd.graphql.annotations.GraphQLRequestParameters;
 import bpd.graphql.annotations.GraphQLRequestResponse;
 import bpd.graphql.converter.GraphQLParser;
 import bpd.graphql.exception.GraphQLParserException;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Map;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 /**
  *
  * @author davies tobi alex
  */
-public class GraphQLParserImpl implements GraphQLParser {
+public class GraphQueryParser implements GraphQLParser {
 
     private GraphQLWriter jsonWriter;
 
     private StringWriter writer;
 
-    public GraphQLParserImpl(GraphQLWriter jsonWriter, StringWriter writer) {
+    public GraphQueryParser(GraphQLWriter jsonWriter, StringWriter writer) {
         this.jsonWriter = jsonWriter;
         this.writer = writer;
     }
 
-    public GraphQLParserImpl() {
+    public GraphQueryParser() {
         writer = new StringWriter();
         jsonWriter = new GraphQLWriter(writer);
     }
@@ -59,23 +61,17 @@ public class GraphQLParserImpl implements GraphQLParser {
 
         for (Field f : object.getClass().getDeclaredFields()) {
             f.setAccessible(true);
-            for (Annotation a : f.getAnnotations()) {
 
-                if (f.getAnnotation(GraphQLRequestOperation.class) != null) {
-                    toGraphQLString(f, 0, object);
-                } else if (f.getAnnotation(GraphQLRequestParameters.class) != null) {
-                    toGraphQLString(f, 1, object);
-                } else if (f.getAnnotation(GraphQLRequestResponse.class) != null) {
-                    toGraphQLString(f, 2, object);
-                } else {
-                    throw new GraphQLParserException("Class not annotated properly,can not parse object.");
-                }
+            if (f.getAnnotation(GraphQLRequestOperation.class) != null) {
+                toGraphQLString(f, OPERATION_PROCESSOR, object);
+            } else if (f.getAnnotation(GraphQLRequestParameters.class) != null) {
+                toGraphQLString(f, PARAMETER_PROCESSOR, object);
+            } else if (f.getAnnotation(GraphQLRequestResponse.class) != null) {
+                toGraphQLString(f, RESPONSE_BODY_PROCESSOR, object);
+            } else {
+                throw new GraphQLParserException("Class not annotated properly,can not parse object.");
             }
-
         }
-        System.out.println("============ TESTING DONE ============");
-        System.out.println(writer.toString());
-        System.out.println("============ TESTING DONE ============");
         return writer.toString();
     }
 
@@ -92,13 +88,13 @@ public class GraphQLParserImpl implements GraphQLParser {
 
         jsonWriter.beginObject();
         switch (part) {
-            case 0:
+            case OPERATION_PROCESSOR:
                 jsonWriter.writeOperationName((String) src.get(object));
                 break;
-            case 1:
+            case PARAMETER_PROCESSOR:
                 jsonWriter.writeParameters((Map<String, Object>) src.get(object));
                 break;
-            case 2:
+            case RESPONSE_BODY_PROCESSOR:
                 jsonWriter.responseExected((Map<String, Object>) src.get(object));
                 jsonWriter.endObject();
                 break;
@@ -108,8 +104,21 @@ public class GraphQLParserImpl implements GraphQLParser {
 
     }
 
-    public <T> T parse(String query) {
-
-        return null;
+    /**
+     * converts graphQl query string to class object
+     *
+     * @param <T>
+     * @param query
+     * @param classType
+     * @return
+     * @throws
+     * org.springframework.boot.configurationprocessor.json.JSONException
+     */
+    @Override
+    public <T> T parse(String query, String operationName, Class<T> classType) throws JSONException {
+        JSONObject obj = new JSONObject(query);
+        Gson g = new Gson();
+        return g.fromJson(obj.getJSONObject("data").getString(operationName), classType);
+//        throw new UnsupportedOperationException("This function has not been implemented yet");
     }
 }

@@ -15,13 +15,14 @@
  */
 package bpd.graphql;
 
-import bpd.graphql.parser.GraphQLParserImpl;
+import bpd.graphql.parser.GraphQueryParser;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -32,26 +33,46 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TestParser {
 
     @Test
-    public void contextLoads() {
+    public void convertTographQLTestString() {
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("pageNumber", 1);
-        parameters.put("numberOfRecords", 3);
+        parameters.put("email", "dav@mail.com");
 
         Map<String, Object> expectedResponses = new HashMap<>();
         expectedResponses.put("responseCode", null);
-        expectedResponses.put("groups", new String[] {"groupName", "from", "to"});
+        expectedResponses.put("responseDescription", null);
+        expectedResponses.put("id", null);
 
-        GraphQLAnnotationRequest req = new GraphQLAnnotationRequest("getAllPageable", parameters, expectedResponses);
+        GraphQLAnnotationRequest req = new GraphQLAnnotationRequest("getCommuterInfo", parameters, expectedResponses);
 
-        GraphQLParserImpl p = new GraphQLParserImpl();
+        GraphQueryParser p = new GraphQueryParser();
 
         try {
-            p.toString(req);
+            System.out.println(p.toString(req));
         } catch (Exception ex) {
-            System.out.println("============ TESTING ERROROROROROROR ============");
             System.out.println(ex.getMessage());
-            System.out.println("============ TESTING ERROROROROROROR ============");
+            Logger.getLogger(TestParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Test
+    public void convertTographQLTestPojo() {
+        String response = "{\n"
+                + "    \"data\": {\n"
+                + "        \"getAllPagable\": {\n"
+                + "            \"responseCode\": \"97\",\n"
+                + "            \"groups\": null\n"
+                + "        }\n"
+                + "    }\n"
+                + "}";
+
+        GraphQueryParser p = new GraphQueryParser();
+
+        try {
+            System.out.println(" ======= GETTING QUERY DATA ====== ");
+            BaseResponse parse = p.parse(response, "getAllPagable", BaseResponse.class);
+            System.out.println(" ======= " + parse.getResponseCode() + " ====== ");
+        } catch (JSONException ex) {
             Logger.getLogger(TestParser.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

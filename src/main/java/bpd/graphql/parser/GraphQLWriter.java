@@ -75,6 +75,9 @@ public class GraphQLWriter extends GraphQLScope implements Closeable, Flushable 
      */
     private boolean indentation = false;
 
+    /**
+     * beautifies the GraphQL payload
+     */
     private boolean prettyfy = false;
 
     /**
@@ -123,10 +126,6 @@ public class GraphQLWriter extends GraphQLScope implements Closeable, Flushable 
         if (stackSize == 0) {
             throw new IllegalStateException("Error Parser has been reset, it means parse porcess has ended aburtly");
         }
-//        System.out.println("====== STACK CURRENT ======");
-//        System.out.println(" CURRENT TOP = " + stack[stackSize - 1]);
-//        System.out.println("====== STACK CONTENT ======");
-//        System.out.println(" CONTENT = " + Arrays.toString(stack));
         return stack[stackSize - 1];
     }
 

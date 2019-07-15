@@ -1,6 +1,9 @@
+bpd\graphql\parser\GraphQueryParser.class
 bpd\graphql\annotations\GraphQLRequestResponse.class
+bpd\graphql\converter\GraphQLWriter.class
 bpd\graphql\parser\GraphQLWriter.class
 bpd\graphql\annotations\GraphQLRequestOperation.class
 bpd\graphql\annotations\GraphQLRequestParameters.class
-bpd\graphql\parser\GraphQLParser.class
-bpd\graphql\parser\GraphQLScope.class
+bpd\graphql\config\GraphQLScope.class
+bpd\graphql\exception\GraphQLParserException.class
+bpd\graphql\converter\GraphQLParser.class
